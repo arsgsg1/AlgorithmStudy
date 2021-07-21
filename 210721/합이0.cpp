@@ -1,3 +1,5 @@
+//  성공
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
