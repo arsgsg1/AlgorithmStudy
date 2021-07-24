@@ -1,3 +1,3 @@
-### README.md
+### AlgorithmStudy
 
-- test
+- This branch is created by HeoTaeYang for saving his solutions.
