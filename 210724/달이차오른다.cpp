@@ -10,59 +10,66 @@ int dy[] = {0, 1, 0, -1};
 int dx[] = {1, 0, -1, 0};
 
 vector<vector<char> > graph;
-vector<vector<bool> > visited;
-stack<pair<int, int> > visit_path;
-vector<bool> keys;
+vector<vector<bool> > visited[1 << 6];
 
 int n, m;
 int start_y, start_x;
 
-void print_graph(const char* str) {
-    cout << str << '\n';
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++)
-            cout << graph[i][j] << " ";
-        cout << '\n';
-    }
-    cout << '\n';
+int get_key(char key, int cur_key) {
+    return cur_key | (1 <<  int(key - 'a'));
+}
+
+bool is_key(char key, int cur_key) {
+    if(((1 << int(key - 'A')) & cur_key) != 0) return true;
+    else return false;
 }
 
 int bfs() {
-    queue<pair<int, pair<int, int> > > q;
-    q.push(make_pair(0, make_pair(start_y, start_x)));
-    visited[start_y][start_x] = true;
-
+    //  value, key, y, x
+    queue<pair<pair<int, int>, pair<int, int> > > q;
+    q.push(make_pair(make_pair(0, 0), make_pair(start_y, start_x)));
+    visited[0][start_y][start_x] = true;
+    
     while(!q.empty()) {
-        int val, cy, cx;
-        int ny, nx;
+        int cval, ckey, cy, cx;
+        int nkey, ny, nx;
 
-        val = q.front().first;
+        cval = q.front().first.first;
+        ckey = q.front().first.second;
         cy = q.front().second.first;
         cx = q.front().second.second;
         q.pop();
 
-        if(graph[cy][cx] == '1') return val;
+        if(graph[cy][cx] == '1') return cval;
 
         for(int i = 0; i < 4; i++) {
             ny = cy + dy[i];
             nx = cx + dx[i];
 
-            if(ny < 0 || ny >= n || nx < 0 || nx >= m) continue;
-            else if(visited[ny][nx]) continue;
-            else if('a' <= graph[ny][nx] && graph[ny][nx] <= 'z') {
-                keys[int(graph[ny][nx] - 'a')] = true;
-                visited[ny][nx] = true;
-                q.push(make_pair(val + 1, make_pair(ny, nx)));
-            }
-            else if('A' <= graph[ny][nx] && graph[ny][nx] <= 'Z') {
-                if(keys[int(graph[ny][nx] - 'A')]) {
-                    visited[ny][nx] = true;
-                    q.push(make_pair(val + 1, make_pair(ny, nx)));
+            if(ny < 0 || ny >= n || nx < 0 || nx >= m) 
+                continue;
+            else if(visited[ckey][ny][nx]) 
+                continue;
+            else if(graph[ny][nx] == '#') 
+                continue;
+            else {
+                if(graph[ny][nx] == '.' || graph[ny][nx] == '1' || graph[ny][nx] == '0') {
+                    nkey = ckey;
+                    visited[nkey][ny][nx] = true;
+                    q.push(make_pair(make_pair(cval + 1, nkey), make_pair(ny, nx)));
                 }
-            }
-            else if(graph[ny][nx] == '.' || graph[ny][nx] == '1') {
-                visited[ny][nx] = true;
-                q.push(make_pair(val + 1, make_pair(ny, nx)));
+                else if('a' <= graph[ny][nx] && graph[ny][nx] <= 'f') {
+                    nkey = get_key(graph[ny][nx], ckey);
+                    visited[nkey][ny][nx] = true;
+                    q.push(make_pair(make_pair(cval + 1, nkey), make_pair(ny, nx)));
+                }
+                else if('A' <= graph[ny][nx] && graph[ny][nx] <= 'F') {
+                    nkey = ckey;
+                    if(is_key(graph[ny][nx], nkey)) {
+                        visited[nkey][ny][nx] = true;
+                        q.push(make_pair(make_pair(cval + 1, nkey), make_pair(ny, nx)));
+                    }
+                }
             }
         }
     }
@@ -78,15 +85,18 @@ int main(void) {
     cin.ignore(0);
 
     graph.resize(n);
-    visited.resize(n);
-    keys.assign(6, false);
+
+    for(int i = 0; i < (1 << 6); i++) {
+        visited[i].assign(n, vector<bool>());
+        for(int j = 0; j < n; j++) 
+            visited[i][j].assign(n, false);
+    }
 
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
             char c;
             cin >> c;
             graph[i].push_back(c);
-            visited[i].push_back(false);
 
             if(c == '0') {
                 start_y = i;
@@ -95,8 +105,6 @@ int main(void) {
         }
         cin.ignore(0);
     }
-
-    // print_graph("after input");
 
     cout << bfs() << '\n';
 
