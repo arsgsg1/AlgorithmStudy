@@ -1,3 +1,10 @@
-### AlgorithmStudy
+AlgorithmStudy
+백준, 프로그래머스 문제를 풀이하여 업로드합니다.
 
-- This branch is created by HeoTaeYang for saving his solutions.
+검수의 편의를 위해 다음과 같이 규칙을 정했습니다.
+각자 [본인의 영문이름]으로 브랜치를 생성합니다. e.g. 홍길동 => gildong
+
+문제 풀이 날짜로 폴더를 생성하여 해당 폴더에 소스코드를 넣어 커밋합니다.
+- 날짜는 YYMMDD 형식입니다.
+- 소스코드의 파일 이름은 문제의 이름과 동일하게 해주세요.
+- 다른 사람들도 참고할 수 있으니 소스코드의 주석에는 자신의 접근 방법을 간략하게 적어주면 더욱 좋습니다. :)
