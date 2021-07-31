@@ -1,11 +1,15 @@
 #include <iostream>
-#include <utility>
+#include <vector>
 #include <queue>
+#include <utility>
 #include <algorithm>
 using namespace std;
 
-priority_queue<pair<int, int> > pq;
-int n, result;
+int n;
+// priority_queue<int, vector<int>, greater<int> > pq; //  최소 힙
+priority_queue<int> pq;
+vector<pair<int, int> > lectures;
+vector<pair<int, int> >::iterator iter;
 
 int main(void) {
     ios::sync_with_stdio(0);
@@ -14,35 +18,19 @@ int main(void) {
     cin >> n;
 
     for(int i = 0; i < n; i++) {
-        int from, to;
-        cin >> from >> to;
-        pq.push(make_pair((-1) * from, (-1) * to));
+        int a, b;
+        cin >> a >> b;
+        lectures.push_back(make_pair(a, b));
     }
 
-    int maxs = -1;
-    int mine = -1;
-    int tmp = 0;
-    while(!pq.empty()) {
-        int s = -pq.top().first;
-        int e = -pq.top().second;
-        pq.pop();
+    sort(lectures.begin(), lectures.end());
+    pq.push((-1) * lectures[0].second);
 
-        // cout << "(" << s << ", " << e << ")\n";
-        if(mine <= s) {
-            maxs = s;
-            mine = e;
-            result = max(result, tmp);
-            tmp = 1;
-        }
-        else {
-            maxs = max(maxs, s);
-            mine = min(mine, e);
-            tmp += 1;
-        }
-        // cout << "(" << maxs << ", " << mine << ")\n";
-        // cout << "cnt : " << tmp << '\n';
+    for(int i = 1; i < n; i++) {
+        if((-1) * pq.top() <= lectures[i].first) pq.pop();
+        pq.push((-1) * lectures[i].second);
     }
-    cout << result << '\n';
-
+    
+    cout << pq.size() << '\n';
     return 0;
 }
