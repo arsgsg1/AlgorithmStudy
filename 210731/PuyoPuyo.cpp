@@ -33,7 +33,6 @@ int cntGroup(void){
           q.push({ty,tx});
         }
       }
-      cout<<gcnt<<" "<<map[i][j]<<" "<<cnt<<'\n';
       if(cnt>3){
         res++;
         isDelete[gcnt]=true;
