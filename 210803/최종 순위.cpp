@@ -1,3 +1,6 @@
+/*
+	접근 방법 : 그래프를 이용한 위상정렬
+*/
 #include <iostream>
 #include <queue>
 #include <vector>
