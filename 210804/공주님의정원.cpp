@@ -14,7 +14,7 @@ int main(void){
   while(true){
     int temp=-1;
     while(!pq.empty()&&pq.top().first<=start){
-      temp=pq.top().second;
+      temp=max(temp,pq.top().second);
       pq.pop();
     }
     if(temp<0)break;
