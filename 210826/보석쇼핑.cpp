@@ -5,52 +5,48 @@
 
 using namespace std;
 
-unordered_map<string, int> gem_map;
-int gem_num;
+unordered_map<string, int> gmap;
+int gnum;
 
 vector<int> solution(vector<string> gems) {
     vector<int> answer;
     vector<int> tmp(2, 0);
-    int start = 0, end = 0; 
-    bool found = false;
+    int start = 0, end = 0;
 
     answer.push_back(1);
     answer.push_back(100001);
 
     for(int i = 0; i < gems.size(); i++)
-        gem_map[gems[i]] = 1;
-    gem_num = gem_map.size();
-
-    unordered_map<string, int>().swap(gem_map);
+        gmap[gems[i]] += 1;
+    gnum = gmap.size();
+    unordered_map<string, int>().swap(gmap);
 
     while(true) {
-        found = false;
-        if(gem_map.size() < gem_num) {
-            gem_map[gems[end]] += 1;
-            tmp[1] = end + 1;
-            end++;
-        }
-        
-        if(gem_map.size() == gem_num) {
-            found = true;
+        if(gmap.size() == gnum) {   //  모든 종류의 보석을 포함할 경우
             tmp[0] = start + 1;
+            tmp[1] = end;
 
-            if(gem_map[gems[start]] == 1) {
-                gem_map[gems[start]] = 0;
-                gem_map.erase(gems[start]);
+            if(answer[1] - answer[0] > tmp[1] - tmp[0]) //  새로 구한 구간의 길이가 더 짧을 경우
+                tmp.swap(answer);   //  answer와 교환
+
+            //  더 짧은 구간 존재하는지 확인
+            if(gmap[gems[start]] == 1) {    //  해당 보석을 제거하면 해당 보석이 더 이상 없을 경우
+                gmap[gems[start]] = 0;
+                gmap.erase(gems[start]);    //  hashmap에서 보석 제거
             }
             else 
-                gem_map[gems[start]] -= 1;
-            start++;            
+                gmap[gems[start]] -= 1;     //  해당 보석 개수 1 감소
+            start++;
         }
 
-        if(found) {
-            if(tmp[1] - tmp[0] < answer[1] - answer[0]) {
-                answer[0] = tmp[0];
-                answer[1] = tmp[1];
-            }
+        else if(end == gems.size())  //  끝에 도달한 경우
+            break;         
+        
+        else if(gmap.size() < gnum) {   //  아직 모든 종류의 보석을 포함하지 못한 경우
+            gmap[gems[end]] += 1;       //  해당 보석 개수 1 증가
+            end++;  
         }
     }
-
+    
     return answer;
 }
