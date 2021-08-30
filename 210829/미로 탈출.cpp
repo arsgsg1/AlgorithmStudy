@@ -1,64 +1,85 @@
 #include <string>
 #include <vector>
 #include <queue>
-#include <algorithm>
+#include <map>
 using namespace std;
-#define MAX_SIZE 1001
-#define INF 987654321
+#define MAX_SIZE 1010
+#define INF 2e9
+vector<int> graph[MAX_SIZE];
+map<int, int> tnum;
+map<pair<int, int>, int> edge;
+map<pair<int, int>, int> rev_edge;
 int d[MAX_SIZE][1 << 11];
-//도착지, 가중치
-vector<pair<int, int>> graph[MAX_SIZE];
-vector<pair<int, int>> rev_graph[MAX_SIZE];
-void setting(int n)
+void setting(int n, vector<vector<int>>& roads, vector<int>& traps)
 {
+	for (int i = 1; i <= n; i++)
+		tnum[i] = 0;
+	for (int i = 0; i < traps.size(); i++)
+		tnum[traps[i]] = i + 1;
+	for (const auto& road : roads) {
+		int s = road[0], e = road[1], d = road[2];
+		graph[s].push_back(e);
+		graph[e].push_back(s);
+		if (edge.find({ s, e }) == edge.end())
+			edge[{s, e}] = d;
+		else
+			edge[{s, e}] = min(edge[{s, e}], d);
+
+		if (rev_edge.find({ e, s }) == rev_edge.end())
+			rev_edge[{e, s}] = d;
+		else
+			rev_edge[{e, s}] = min(rev_edge[{e, s}], d);
+	}
 	for (int i = 0; i <= n; i++) {
-		for (int j = 0; j <= (1 << 10); j++) {
+		for (int j = 0; j < (1 << 11); j++) {
 			d[i][j] = INF;
 		}
 	}
 }
-void dijkstra(const int start, const vector<int>& traps)
+void dijkstra(int start)
 {
-	//정점, 가중치, 트랩
+	//가중치, 정점, 트랩 상태
 	priority_queue<pair<int, pair<int, int>>> pq;
-	pq.push({ start,{ 0, 0 } });
+	pq.push({ 0,{ start, 0 } });
+	d[start][0] = 0;
 	while (!pq.empty()) {
-		int cur = pq.top().first;
-		int dist = -pq.top().second.first;
-		int trap = pq.top().second.second;
+		int curV = pq.top().second.first;
+		int curDist = -pq.top().first;
+		int curTrap = pq.top().second.second;
 		pq.pop();
-		if (d[cur][trap] < dist) //더 짧은 경로를 알고 있음.
-			continue;
-		for (int i = 0; i < graph[cur].size(); i++) {
-			int next = graph[cur][i].first;
-			int nextDist, trapState;
-			bool isCurTrap = find(traps.begin(), traps.end(), cur) == traps.end() ? false : true;
-			bool isNextTrap = find(traps.begin(), traps.end(), next) == traps.end() ? false : true;
-			if (traps.end() != find(traps.begin(), traps.end(), next)) {
-				trapState = trap ^ (1 << next);
-			}
-			if ((isCurTrap && isNextTrap) || (!isCurTrap && !isNextTrap)) {
-				nextDist = dist + graph[cur][i].first;
-				pq.push({ next,{ -nextDist, trapState } });
+		for (int i = 0; i < graph[curV].size(); i++) {
+			int nextV = graph[curV][i];
+			int nextTrap = tnum[nextV] > 0 ? curTrap ^ (1 << tnum[nextV]) : curTrap;
+			bool f1 = curTrap & (1 << tnum[curV]);
+			bool f2 = curTrap & (1 << tnum[nextV]);
+			if ((f1 && f2) || (!f1 && !f2)) {
+				if (edge.find({ curV, nextV }) != edge.end() &&
+					d[nextV][nextTrap] > curDist + edge[{curV, nextV}]) {
+					d[nextV][nextTrap] = curDist + edge[{curV, nextV}];
+					pq.push({ -d[nextV][nextTrap],{ nextV, nextTrap } });
+				}
 			}
 			else {
-				nextDist = dist + rev_graph[cur][i].first;
-				pq.push({ next,{ -nextDist, trapState } });
+				if (rev_edge.find({ curV, nextV }) != rev_edge.end() &&
+					d[nextV][nextTrap] > curDist + rev_edge[{curV, nextV}]) {
+					d[nextV][nextTrap] = curDist + rev_edge[{curV, nextV}];
+					pq.push({ -d[nextV][nextTrap],{ nextV, nextTrap } });
+				}
 			}
 		}
 	}
 }
 int solution(int n, int start, int end, vector<vector<int>> roads, vector<int> traps) {
 	int answer = INF;
-	setting(n);
-	for (int i = 0; i < roads.size(); i++) {
-		int s = roads[i][0], e = roads[i][1], d = roads[i][2];
-		graph[s].push_back({ e, d });
-		rev_graph[e].push_back({ s, d });
-	}
-	dijkstra(start, traps);
-	for (int j = 0; j <= (1 << 10); j++) {
-		answer = min(answer, d[end][j]);
-	}
+	setting(n, roads, traps);
+	dijkstra(start);
+	for (int i = 0; i < (1 << 11); i++)
+		answer = min(answer, d[end][i]);
 	return answer;
+}
+
+void main()
+{
+	//solution(3, 1, 3, { {1, 2, 2}, {3, 2, 3} }, { 2 });
+	solution(4, 1, 4, { { 1, 2, 1 },{ 3, 2, 1 },{ 2, 4, 1 } }, { 2, 3 });
 }
