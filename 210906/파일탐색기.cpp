@@ -23,12 +23,12 @@ void token(const string& _str, int n){
 
 int numCompare(const string& str, const string& dst){
   int zn1=0, zn2=0; size_t i=0, j=0;
-  while(i<str.size()&&str[i++]=='0')zn1++;
-  while(j<dst.size()&&dst[j++]=='0')zn2++;
+  while(i<str.size()&&str[i]=='0'){zn1++;i++;}
+  while(j<dst.size()&&dst[j]=='0'){zn2++;j++;}
   size_t s1=str.size()-zn1, s2=dst.size()-zn2;
   if(s1>s2)return 1;
   else if(s1<s2) return -1;
-  for(;i<s1; i++,j++){
+  for(;i<str.size(); i++,j++){
     if(str[i]>dst[j])return 1;
     else if(str[i]<dst[j])return -1;
   }
@@ -63,7 +63,11 @@ void merge(int l, int mid, int r){
       check=compare(str[ll][i],str[rr][j]);
       i++,j++;
     }
-    if(check==1) t[index++]=str[rr++];
+    if(check==0){
+      if(str[ll].size()>str[rr].size())t[index++]=str[rr++];
+      else t[index++]=str[ll++];
+    }
+    else if(check==1) t[index++]=str[rr++];
     else t[index++]=str[ll++];
   }
   while(ll<mid)t[index++]=str[ll++];
@@ -101,3 +105,4 @@ int main(void){
   mergeSort(0,N);
   print(N);
 }
+
