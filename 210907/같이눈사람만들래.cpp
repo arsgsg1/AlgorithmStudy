@@ -31,10 +31,6 @@ int main(void) {
 
     sort(snowmen.begin(), snowmen.end());
 
-    // for(int i = 0; i < snowmen.size(); i++)
-    //     cout << "(" << snowmen[i].first << ", " << snowmen[i].second.first << ", " << snowmen[i].second.second << ") ";
-    // cout << '\n';
-
     for(int i = 0; i < snowmen.size() - 1; i++) {
         int h1 = snowmen[i].first;
         int x1 = snowmen[i].second.first;
